@@ -1,7 +1,7 @@
 extern crate base64;
+extern crate hex;
 
-use base64::decode;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 
 #[derive(Debug)]
 struct CodyError {
@@ -31,15 +31,34 @@ impl From<base64::DecodeError> for CodyError {
         }
     }
 }
+impl From<hex::FromHexError> for CodyError {
+    fn from(error: hex::FromHexError) -> Self {
+        CodyError {
+            message: "Input was not valid hexadecimal".into(),
+        }
+    }
+}
 
 fn main() -> Result<(), CodyError> {
-    let mut in_string = String::new();
-    io::stdin().read_to_string(&mut in_string)?;
-    let in_string = &in_string.trim();
-    // println!("IN: ^{}$", &in_string);
-    let out_bytes = decode(&in_string)?;
-    // println!("OUT: {:?}", out_bytes);
-    let result = String::from_utf8(out_bytes)?;
-    println!("{}", result);
+    let mut stdin = io::stdin();
+    match std::env::args().nth(1) {
+        Some(format) => {
+            if &format == "base64" {
+                let mut in_string = String::new();
+                stdin.read_to_string(&mut in_string)?;
+                let in_string = &in_string.trim();
+                let out_bytes = base64::decode(&in_string)?;
+                io::stdout().write(&out_bytes)?;
+            }
+            if &format == "hex" {
+                let mut in_string = String::new();
+                stdin.read_to_string(&mut in_string)?;
+                let in_string = &in_string.trim();
+                let out_bytes = hex::decode(&in_string)?;
+                io::stdout().write(&out_bytes)?;
+            }
+        }
+        None => {}
+    }
     Ok(())
 }
