@@ -1,0 +1,7 @@
+[package]
+name = "cody"
+version = "0.1.0"
+authors = ["Peter Lyons <pete@peterlyons.com>"]
+
+[dependencies]
+base64 = "~0.6.0"
