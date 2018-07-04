@@ -4,10 +4,10 @@
 
 # ---- Start unofficial bash strict mode boilerplate
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -o errexit    # always exit on error
-set -o errtrace   # trap errors in functions as well
-set -o pipefail   # don't ignore exit codes when piping output
-set -o posix      # more strict failures in subshells
+set -o errexit  # always exit on error
+set -o errtrace # trap errors in functions as well
+set -o pipefail # don't ignore exit codes when piping output
+set -o posix    # more strict failures in subshells
 # set -x          # enable debugging
 
 IFS="$(printf "\n\t")"
@@ -17,4 +17,5 @@ cd "$(dirname "$0")/.."
 exec docker run --rm --interactive --tty \
   --volume "${PWD}:/opt" --workdir /opt \
   --env USER=root \
+  --env PATH=/usr/local/cargo/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/target/debug \
   rust:1.27 "${1-/bin/bash}"

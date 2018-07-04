@@ -6,3 +6,4 @@ authors = ["Peter Lyons <pete@peterlyons.com>"]
 [dependencies]
 base64 = "~0.6.0"
 hex = "0.3.2"
+byteorder = "1.2.3"
