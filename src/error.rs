@@ -1,8 +1,6 @@
-extern crate base64;
-extern crate byteorder;
-extern crate hex;
-use std::fmt;
-use std::io;
+use base64;
+use hex;
+use std::{self, fmt, io};
 
 pub struct CodyError {
     pub message: String,

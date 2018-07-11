@@ -1,9 +1,9 @@
 extern crate base64;
 extern crate byteorder;
-extern crate cody;
 extern crate hex;
+mod error;
 use byteorder::{BigEndian, ReadBytesExt};
-use cody::CodyError;
+use error::CodyError;
 use std::env::args;
 use std::io::{self, Cursor, Read, Write};
 
