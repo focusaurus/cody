@@ -26,6 +26,28 @@ fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     // reader.read_u64::<BigEndian>().map_err(|e|e.into())
 }
 
+fn dec_hex(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+    let in_string = String::from_utf8(encoded_input)?;
+    Ok(in_string.trim().parse()?)
+}
+
+fn base64_hex(encoded_input: Vec<u8>) -> Result<String, CodyError> {
+    let in_string = String::from_utf8(encoded_input)?;
+    let in_string = in_string.trim();
+    let decoded_input = base64::decode(&in_string)?;
+    let mut output = String::new();
+    for byte in &decoded_input {
+        output.push_str(&format!("{:x}", byte));
+    }
+    Ok(output)
+}
+
+fn base64_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
+    let in_string = String::from_utf8(encoded_input)?;
+    let in_string = in_string.trim();
+    Ok(base64::decode(&in_string)?)
+}
+
 fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
     let in_format = args().nth(1).unwrap_or("auto".into());
@@ -40,26 +62,16 @@ fn main() -> Result<(), CodyError> {
 
     match (in_format, out_format) {
         ("decimal", "hex") => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let number: u64 = in_string.trim().parse()?;
-            println!("{:x}", number);
+            println!("{:x}", dec_hex(encoded_input)?);
         }
         ("hex", "decimal") => {
             println!("{}", hex_dec(encoded_input)?);
         }
         ("base64", "hex") => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let in_string = in_string.trim();
-            let decoded_input = base64::decode(&in_string)?;
-            for byte in &decoded_input {
-                print!("{:x}", byte);
-            }
+            println!("{}", base64_hex(encoded_input)?);
         }
         ("base64", "binary") => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let in_string = in_string.trim();
-            let decoded_input = base64::decode(&in_string)?;
-            io::stdout().write(&decoded_input)?;
+            io::stdout().write(&base64_binary(encoded_input)?)?;
         }
         ("binary", "base64") => {
             let encoded_output = base64::encode(&encoded_input);
