@@ -1,55 +1,11 @@
 extern crate base64;
 extern crate byteorder;
+extern crate cody;
 extern crate hex;
-
 use byteorder::{BigEndian, ReadBytesExt};
+use cody::CodyError;
 use std::env::args;
 use std::io::{self, Cursor, Read, Write};
-
-#[derive(Debug)]
-struct CodyError {
-    message: String,
-}
-
-impl From<io::Error> for CodyError {
-    fn from(_error: io::Error) -> Self {
-        CodyError {
-            message: "IO Error".into(),
-        }
-    }
-}
-
-impl From<std::string::FromUtf8Error> for CodyError {
-    fn from(_error: std::string::FromUtf8Error) -> Self {
-        CodyError {
-            message: "UTF-8 Error".into(),
-        }
-    }
-}
-
-impl From<base64::DecodeError> for CodyError {
-    fn from(_error: base64::DecodeError) -> Self {
-        CodyError {
-            message: "Input was not valid base64".into(),
-        }
-    }
-}
-
-impl From<hex::FromHexError> for CodyError {
-    fn from(_error: hex::FromHexError) -> Self {
-        CodyError {
-            message: "Input was not valid hexadecimal".into(),
-        }
-    }
-}
-
-impl From<std::num::ParseIntError> for CodyError {
-    fn from(_error: std::num::ParseIntError) -> Self {
-        CodyError {
-            message: "Input was not valid decimal number".into(),
-        }
-    }
-}
 
 fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
