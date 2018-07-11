@@ -2,6 +2,12 @@ use base64;
 use hex;
 use std::{self, fmt, io};
 
+pub fn exit(message: &str) -> Result<(), CodyError> {
+    Err(CodyError {
+        message: message.into(),
+    })
+}
+
 pub struct CodyError {
     pub message: String,
 }

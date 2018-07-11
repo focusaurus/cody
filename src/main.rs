@@ -3,9 +3,25 @@ extern crate byteorder;
 extern crate hex;
 mod error;
 use byteorder::{BigEndian, ReadBytesExt};
-use error::CodyError;
+use error::{exit, CodyError};
 use std::env::args;
 use std::io::{self, Cursor, Read, Write};
+
+fn hex_dec(encoded_input: &Vec<u8>) -> Result<String, CodyError> {
+    let mut decoded_input = hex::decode(encoded_input)?;
+    if decoded_input.len() > 8 {
+        return exit("Can only decode a maximum of 16 hexadecimal characters to decimal")
+            .map(|_| "will-will-never-execute-really".into());
+    }
+    // Pad with leading zero bytes until we have 64 bits total
+    while decoded_input.len() < 8 {
+        decoded_input.insert(0, 0);
+    }
+
+    // println!("{:?}", decoded_input);
+    let mut reader = Cursor::new(&decoded_input);
+    Ok(format!("{}", reader.read_u64::<BigEndian>()?))
+}
 
 fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
@@ -15,6 +31,9 @@ fn main() -> Result<(), CodyError> {
     let out_format = out_format.as_str();
     let mut encoded_input = vec![];
     stdin.read_to_end(&mut encoded_input)?;
+    if encoded_input.len() == 0 {
+        return exit("standard input was empty");
+    }
 
     match (in_format, out_format) {
         ("decimal", "hex") => {
@@ -23,34 +42,7 @@ fn main() -> Result<(), CodyError> {
             println!("{:x}", number);
         }
         ("hex", "decimal") => {
-            let decoded_input = hex::decode(&encoded_input)?;
-            println!("{:?}", decoded_input);
-
-            let mut reader = Cursor::new(&decoded_input);
-            match decoded_input.len() {
-                1 => {
-                    let value = reader.read_u8()?;
-                    println!("{}", value);
-                }
-                2 => {
-                    let value = reader.read_u16::<BigEndian>()?;
-                    println!("{}", value);
-                }
-                4 => {
-                    let value = reader.read_u32::<BigEndian>()?;
-                    println!("{}", value);
-                }
-                8 => {
-                    let value = reader.read_u64::<BigEndian>()?;
-                    println!("{}", value);
-                }
-                _ => {
-                    return Err(CodyError {
-                        message: "Converting hex to decimal requires 1,2,4, or 8 bytes of hex"
-                            .into(),
-                    })
-                }
-            }
+            println!("{}", hex_dec(&encoded_input)?);
         }
         ("base64", "hex") => {
             let in_string = String::from_utf8(encoded_input)?;
