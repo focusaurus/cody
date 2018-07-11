@@ -7,11 +7,13 @@ use error::{exit, CodyError};
 use std::env::args;
 use std::io::{self, Cursor, Read, Write};
 
-fn hex_dec(encoded_input: &Vec<u8>) -> Result<String, CodyError> {
-    let mut decoded_input = hex::decode(encoded_input)?;
+fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+    // Strip leading and trailing ASCII whitespace
+    let in_string = String::from_utf8(encoded_input)?;
+    let in_string = in_string.trim();
+    let mut decoded_input = hex::decode(in_string.as_bytes())?;
     if decoded_input.len() > 8 {
-        return exit("Can only decode a maximum of 16 hexadecimal characters to decimal")
-            .map(|_| "will-will-never-execute-really".into());
+        return exit("Can only decode a maximum of 16 hexadecimal characters to decimal").map(|_| 0);
     }
     // Pad with leading zero bytes until we have 64 bits total
     while decoded_input.len() < 8 {
@@ -20,7 +22,8 @@ fn hex_dec(encoded_input: &Vec<u8>) -> Result<String, CodyError> {
 
     // println!("{:?}", decoded_input);
     let mut reader = Cursor::new(&decoded_input);
-    Ok(format!("{}", reader.read_u64::<BigEndian>()?))
+    Ok(reader.read_u64::<BigEndian>()?)
+    // reader.read_u64::<BigEndian>().map_err(|e|e.into())
 }
 
 fn main() -> Result<(), CodyError> {
@@ -42,7 +45,7 @@ fn main() -> Result<(), CodyError> {
             println!("{:x}", number);
         }
         ("hex", "decimal") => {
-            println!("{}", hex_dec(&encoded_input)?);
+            println!("{}", hex_dec(encoded_input)?);
         }
         ("base64", "hex") => {
             let in_string = String::from_utf8(encoded_input)?;
