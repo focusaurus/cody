@@ -7,10 +7,14 @@ use error::{exit, CodyError};
 use std::env::args;
 use std::io::{self, Cursor, Read, Write};
 
-fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+fn trim(encoded_input: Vec<u8>) -> Result<String, std::string::FromUtf8Error> {
     // Strip leading and trailing ASCII whitespace
     let in_string = String::from_utf8(encoded_input)?;
-    let in_string = in_string.trim();
+    Ok(in_string.trim().into())
+}
+
+fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+    let in_string = trim(encoded_input)?;
     let mut decoded_input = hex::decode(in_string.as_bytes())?;
     if decoded_input.len() > 8 {
         return exit("Can only decode a maximum of 16 hexadecimal characters to decimal").map(|_| 0);
@@ -27,13 +31,12 @@ fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
 }
 
 fn dec_hex(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
-    let in_string = String::from_utf8(encoded_input)?;
-    Ok(in_string.trim().parse()?)
+    let in_string = trim(encoded_input)?;
+    Ok(in_string.parse()?)
 }
 
 fn base64_hex(encoded_input: Vec<u8>) -> Result<String, CodyError> {
-    let in_string = String::from_utf8(encoded_input)?;
-    let in_string = in_string.trim();
+    let in_string = trim(encoded_input)?;
     let decoded_input = base64::decode(&in_string)?;
     let mut output = String::new();
     for byte in &decoded_input {
@@ -43,9 +46,14 @@ fn base64_hex(encoded_input: Vec<u8>) -> Result<String, CodyError> {
 }
 
 fn base64_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
-    let in_string = String::from_utf8(encoded_input)?;
-    let in_string = in_string.trim();
+    let in_string = trim(encoded_input)?;
     Ok(base64::decode(&in_string)?)
+}
+
+fn hex_base64(encoded_input: Vec<u8>) -> Result<String, CodyError> {
+    let in_string = trim(encoded_input)?;
+    let decoded_input = hex::decode(&in_string)?;
+    Ok(base64::encode(&decoded_input))
 }
 
 fn main() -> Result<(), CodyError> {
@@ -74,16 +82,10 @@ fn main() -> Result<(), CodyError> {
             io::stdout().write(&base64_binary(encoded_input)?)?;
         }
         ("binary", "base64") => {
-            let encoded_output = base64::encode(&encoded_input);
-            io::stdout().write(encoded_output.as_bytes())?;
+            println!("{}", base64::encode(&encoded_input));
         }
         ("hex", "base64") => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let in_string = in_string.trim();
-            let decoded_input = hex::decode(&in_string)?;
-            println!("{:?}", decoded_input);
-            let encoded_output = base64::encode(&decoded_input);
-            io::stdout().write(encoded_output.as_bytes())?;
+            println!("{}", hex_base64(encoded_input)?);
         }
         (_, _) => {
             io::stdout().write(&encoded_input)?;
