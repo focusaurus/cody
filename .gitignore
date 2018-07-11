@@ -1,3 +1,4 @@
-
+/.rustup
+/.cargo
 /target
 **/*.rs.bk

@@ -17,5 +17,6 @@ cd "$(dirname "$0")/.."
 exec docker run --rm --interactive --tty \
   --volume "${PWD}:/opt" --workdir /opt \
   --env USER=root \
-  --env PATH=/usr/local/cargo/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/target/debug \
+  --env PATH=/opt/.cargo/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/target/debug \
+  --env CARGO_HOME=/opt/.cargo \
   rust:1.27 "${1-/bin/bash}"
