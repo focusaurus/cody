@@ -24,10 +24,14 @@ fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
         decoded_input.insert(0, 0);
     }
 
-    // println!("{:?}", decoded_input);
     let mut reader = Cursor::new(&decoded_input);
     Ok(reader.read_u64::<BigEndian>()?)
-    // reader.read_u64::<BigEndian>().map_err(|e|e.into())
+}
+
+fn hex_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
+    let in_string = trim(encoded_input)?;
+    let decoded_input = hex::decode(in_string.as_bytes())?;
+    Ok(decoded_input)
 }
 
 fn dec_hex(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
@@ -58,22 +62,25 @@ fn hex_base64(encoded_input: Vec<u8>) -> Result<String, CodyError> {
 
 fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
-    let in_format = args().nth(1).unwrap_or("auto".into());
+    let in_format = args().nth(1).unwrap_or("binary".into());
     let in_format = in_format.as_str();
-    let out_format = args().nth(2).unwrap_or("auto".into());
+    let out_format = args().nth(2).unwrap_or("binary".into());
     let out_format = out_format.as_str();
     let mut encoded_input = vec![];
     stdin.read_to_end(&mut encoded_input)?;
     if encoded_input.len() == 0 {
         return exit("standard input was empty");
     }
-
+    println!("{} {}", in_format, out_format);
     match (in_format, out_format) {
         ("decimal", "hex") => {
             println!("{:x}", dec_hex(encoded_input)?);
         }
         ("hex", "decimal") => {
             println!("{}", hex_dec(encoded_input)?);
+        }
+        ("hex", "binary") => {
+            io::stdout().write(&hex_binary(encoded_input)?)?;
         }
         ("base64", "hex") => {
             println!("{}", base64_hex(encoded_input)?);
@@ -91,34 +98,5 @@ fn main() -> Result<(), CodyError> {
             io::stdout().write(&encoded_input)?;
         }
     }
-    /*
-    let decoded_input = match in_format.as_str() {
-        "base64" => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let in_string = in_string.trim();
-            base64::decode(&in_string)?
-        }
-        "hex" => {
-            let in_string = String::from_utf8(encoded_input)?;
-            let in_string = in_string.trim();
-            hex::decode(&in_string)?
-        }
-        "decimal" => {}
-        _ => encoded_input,
-    };
-    match out_format.as_str() {
-        "hex" => {
-            let encoded_output = hex::encode(&decoded_input);
-            io::stdout().write(encoded_output.as_bytes())?;
-        }
-        "base64" => {
-            let encoded_output = base64::encode(&decoded_input);
-            io::stdout().write(encoded_output.as_bytes())?;
-        }
-        _ => {
-            io::stdout().write(&decoded_input)?;
-        }
-    }
-    */
     Ok(())
 }
