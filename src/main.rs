@@ -73,6 +73,9 @@ fn main() -> Result<(), CodyError> {
     }
     println!("{} {}", in_format, out_format);
     match (in_format, out_format) {
+        ("binary", "hex") => {
+            println!("{}", hex::encode(&encoded_input));
+        }
         ("decimal", "hex") => {
             println!("{:x}", dec_hex(encoded_input)?);
         }
