@@ -15,16 +15,23 @@ fn trim(encoded_input: Vec<u8>) -> Result<String, std::string::FromUtf8Error> {
 
 fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     let in_string = trim(encoded_input)?;
-    let mut decoded_input = hex::decode(in_string.as_bytes())?;
+    let decoded_input = hex::decode(in_string.as_bytes())?;
     if decoded_input.len() > 8 {
         return exit("Can only decode a maximum of 16 hexadecimal characters to decimal").map(|_| 0);
     }
+    binary_decimal(decoded_input)
+}
+
+fn binary_decimal(mut input: Vec<u8>) -> Result<u64, CodyError> {
+    if input.len() > 8 {
+        return exit("Can only decode a maximum of 8 bytes to decimal").map(|_| 0);
+    }
     // Pad with leading zero bytes until we have 64 bits total
-    while decoded_input.len() < 8 {
-        decoded_input.insert(0, 0);
+    while input.len() < 8 {
+        input.insert(0, 0);
     }
 
-    let mut reader = Cursor::new(&decoded_input);
+    let mut reader = Cursor::new(&input);
     Ok(reader.read_u64::<BigEndian>()?)
 }
 
@@ -73,8 +80,20 @@ fn main() -> Result<(), CodyError> {
     }
     println!("{} {}", in_format, out_format);
     match (in_format, out_format) {
+        ("binary", "base64") => {
+            println!("{}", base64::encode(&encoded_input));
+        }
+        ("binary", "decimal") => {
+            println!("{}", binary_decimal(encoded_input)?);
+        }
         ("binary", "hex") => {
             println!("{}", hex::encode(&encoded_input));
+        }
+        ("base64", "binary") => {
+            io::stdout().write(&base64_binary(encoded_input)?)?;
+        }
+        ("base64", "hex") => {
+            println!("{}", base64_hex(encoded_input)?);
         }
         ("decimal", "hex") => {
             println!("{:x}", dec_hex(encoded_input)?);
@@ -85,15 +104,7 @@ fn main() -> Result<(), CodyError> {
         ("hex", "binary") => {
             io::stdout().write(&hex_binary(encoded_input)?)?;
         }
-        ("base64", "hex") => {
-            println!("{}", base64_hex(encoded_input)?);
-        }
-        ("base64", "binary") => {
-            io::stdout().write(&base64_binary(encoded_input)?)?;
-        }
-        ("binary", "base64") => {
-            println!("{}", base64::encode(&encoded_input));
-        }
+
         ("hex", "base64") => {
             println!("{}", hex_base64(encoded_input)?);
         }
