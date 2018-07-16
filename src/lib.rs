@@ -33,11 +33,21 @@ fn test_binary_base64() {
     );
 }
 
-pub fn binary_hex(input: &Vec<u8>) -> String {
+pub fn binary_hexadecimal(input: &Vec<u8>) -> String {
     hex::encode(input)
 }
 
-pub fn hex_dec(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+#[test]
+fn test_binary_hexadecimal() {
+    assert_eq!(binary_hexadecimal(&vec![]), "".to_string());
+    assert_eq!(binary_hexadecimal(&b"PETE".to_vec()), "50455445".to_string());
+    assert_eq!(
+        binary_hexadecimal(&b"unit-test".to_vec()),
+        "756e69742d74657374".to_string()
+    );
+}
+
+pub fn hexadecimal_decimal(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     let in_string = trim(encoded_input)?;
     let decoded_input = hex::decode(in_string.as_bytes())?;
     if decoded_input.len() > 8 {
@@ -59,13 +69,13 @@ pub fn binary_decimal(mut input: Vec<u8>) -> Result<u64, CodyError> {
     Ok(reader.read_u64::<BigEndian>()?)
 }
 
-pub fn hex_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
+pub fn hexadecimal_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
     let in_string = trim(encoded_input)?;
     let decoded_input = hex::decode(in_string.as_bytes())?;
     Ok(decoded_input)
 }
 
-pub fn dec_hex(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
+pub fn decimal_hexadecimal(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     let in_string = trim(encoded_input)?;
     Ok(in_string.parse()?)
 }
@@ -85,7 +95,7 @@ pub fn base64_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
     Ok(base64::decode(&in_string)?)
 }
 
-pub fn hex_base64(encoded_input: Vec<u8>) -> Result<String, CodyError> {
+pub fn hexadecimal_base64(encoded_input: Vec<u8>) -> Result<String, CodyError> {
     let in_string = trim(encoded_input)?;
     let decoded_input = hex::decode(&in_string)?;
     Ok(base64::encode(&decoded_input))
