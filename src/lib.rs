@@ -12,8 +12,25 @@ fn trim(encoded_input: Vec<u8>) -> Result<String, std::string::FromUtf8Error> {
     Ok(in_string.trim().into())
 }
 
+#[test]
+fn test_trim() {
+    assert_eq!(trim("".into()).unwrap(), "");
+    assert_eq!(trim(" a ".into()).unwrap(), "a");
+    assert_eq!(trim(" a b c\td\t".into()).unwrap(), "a b c\td");
+}
+
 pub fn binary_base64(input: &Vec<u8>) -> String {
     base64::encode(input)
+}
+
+#[test]
+fn test_binary_base64() {
+    assert_eq!(binary_base64(&vec![]), "".to_string());
+    assert_eq!(binary_base64(&b"PETE".to_vec()), "UEVURQ==".to_string());
+    assert_eq!(
+        binary_base64(&b"unit-test".to_vec()),
+        "dW5pdC10ZXN0".to_string()
+    );
 }
 
 pub fn binary_hex(input: &Vec<u8>) -> String {
