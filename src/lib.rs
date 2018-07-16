@@ -40,7 +40,10 @@ pub fn binary_hexadecimal(input: &Vec<u8>) -> String {
 #[test]
 fn test_binary_hexadecimal() {
     assert_eq!(binary_hexadecimal(&vec![]), "".to_string());
-    assert_eq!(binary_hexadecimal(&b"PETE".to_vec()), "50455445".to_string());
+    assert_eq!(
+        binary_hexadecimal(&b"PETE".to_vec()),
+        "50455445".to_string()
+    );
     assert_eq!(
         binary_hexadecimal(&b"unit-test".to_vec()),
         "756e69742d74657374".to_string()
@@ -56,6 +59,26 @@ pub fn hexadecimal_decimal(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     binary_decimal(decoded_input)
 }
 
+#[test]
+fn test_hexadecimal_decimal() {
+    assert_eq!(hexadecimal_decimal(vec![]).unwrap(), 0);
+    assert_eq!(hexadecimal_decimal(b"ff".to_vec()).unwrap(), 255);
+    assert_eq!(hexadecimal_decimal(b"FF".to_vec()).unwrap(), 255);
+    assert_eq!(hexadecimal_decimal(b"fF".to_vec()).unwrap(), 255);
+    assert_eq!(hexadecimal_decimal(b"fe".to_vec()).unwrap(), 254);
+    assert_eq!(hexadecimal_decimal(b"0007".to_vec()).unwrap(), 7);
+    assert_eq!(hexadecimal_decimal(b"00000001".to_vec()).unwrap(), 1);
+    assert_eq!(hexadecimal_decimal(b"0100".to_vec()).unwrap(), 256);
+    assert!(hexadecimal_decimal(b"0".to_vec()).is_err() "Must have even number of hex chars");
+    assert!(hexadecimal_decimal(b"000".to_vec()).is_err() "Must have even number of hex chars");
+    assert!(hexadecimal_decimal(b"00000".to_vec()).is_err() "Must have even number of hex chars");
+    assert!(
+        hexadecimal_decimal(b"1122334455667788A".to_vec()).is_err(),
+        "Max 16 hex chars can be parsed"
+    );
+    assert!(hexadecimal_decimal(b"fg".to_vec()).is_err());
+}
+
 pub fn binary_decimal(mut input: Vec<u8>) -> Result<u64, CodyError> {
     if input.len() > 8 {
         return exit("Can only decode a maximum of 8 bytes to decimal").map(|_| 0);
@@ -67,6 +90,20 @@ pub fn binary_decimal(mut input: Vec<u8>) -> Result<u64, CodyError> {
 
     let mut reader = Cursor::new(&input);
     Ok(reader.read_u64::<BigEndian>()?)
+}
+
+#[test]
+fn test_binary_decimal() {
+    assert_eq!(binary_decimal(vec![]).unwrap(), 0);
+    assert_eq!(binary_decimal(vec![0b0000001]).unwrap(), 1);
+    assert_eq!(binary_decimal(vec![0b0000001, 0b00000001]).unwrap(), 257);
+    assert_eq!(binary_decimal(vec![0b0000001, 0]).unwrap(), 256);
+    assert_eq!(binary_decimal(vec![0, 0b0000010, 0b00000010]).unwrap(), 514);
+    assert_eq!(
+        binary_decimal(vec![0, 0, 0, 0, 0b0000010, 0b00000010]).unwrap(),
+        514
+    );
+    assert!(binary_decimal(vec![0, 0, 0, 0, 0, 0, 0, 0, 0]).is_err());
 }
 
 pub fn hexadecimal_binary(encoded_input: Vec<u8>) -> Result<Vec<u8>, CodyError> {
