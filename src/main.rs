@@ -30,7 +30,7 @@ fn main() -> Result<(), CodyError> {
             io::stdout().write(&cody::base64_binary(encoded_input)?)?;
         }
         ("base64", "hexadecimal") => {
-            println!("{}", cody::base64_hex(encoded_input)?);
+            println!("{}", cody::base64_hexadecimal(encoded_input)?);
         }
         ("decimal", "hexadecimal") => {
             println!("{:x}", cody::decimal_hexadecimal(encoded_input)?);
