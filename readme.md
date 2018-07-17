@@ -9,13 +9,32 @@ Input data is read from standard input. Transcoded output is written to standard
 ## Examples
 
 ```sh
-echo "Hello, Cody!" | base64 | cody base64 binary     
+printf fe | cody hexadecimal decimal
+254
+printf 254 |cody decimal hexadecimal
+fe
+```
+
+```sh
+printf "Hello, Cody!" | cody binary base64  
+SGVsbG8sIENvZHkh
+printf SGVsbG8sIENvZHkh | cody base64 binary
 Hello, Cody!
 ```
 
-## Supported Encodings
+```sh
+printf 07ff | cody hexadecimal base64
+B/8=
+```
 
-* binary
-* hexadecimal
-* base64
-* decimal
+## Supported Conversions
+
+* binary to hexadecimal
+* binary to base64
+* binary to decimal
+* hexadecimal to binary
+* hexadecimal to base64
+* hexadecimal to decimal
+* base64 to binary
+* base64 to hexadecimal
+* decimal to hexadecimal

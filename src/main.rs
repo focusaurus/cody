@@ -17,14 +17,23 @@ fn main() -> Result<(), CodyError> {
     }
 
     match (in_format, out_format) {
+        ("binary", "hexadecimal") => {
+            println!("{}", cody::binary_hexadecimal(&encoded_input));
+        }
         ("binary", "base64") => {
             println!("{}", cody::binary_base64(&encoded_input));
         }
         ("binary", "decimal") => {
             println!("{}", cody::binary_decimal(encoded_input)?);
         }
-        ("binary", "hexadecimal") => {
-            println!("{}", cody::binary_hexadecimal(&encoded_input));
+        ("hexadecimal", "binary") => {
+            io::stdout().write(&cody::hexadecimal_binary(encoded_input)?)?;
+        }
+        ("hexadecimal", "base64") => {
+            println!("{}", cody::hexadecimal_base64(encoded_input)?);
+        }
+        ("hexadecimal", "decimal") => {
+            println!("{}", cody::hexadecimal_decimal(encoded_input)?);
         }
         ("base64", "binary") => {
             io::stdout().write(&cody::base64_binary(encoded_input)?)?;
@@ -35,15 +44,8 @@ fn main() -> Result<(), CodyError> {
         ("decimal", "hexadecimal") => {
             println!("{:x}", cody::decimal_hexadecimal(encoded_input)?);
         }
-        ("hexadecimal", "decimal") => {
-            println!("{}", cody::hexadecimal_decimal(encoded_input)?);
-        }
-        ("hexadecimal", "binary") => {
-            io::stdout().write(&cody::hexadecimal_binary(encoded_input)?)?;
-        }
-        ("hexadecimal", "base64") => {
-            println!("{}", cody::hexadecimal_base64(encoded_input)?);
-        }
+        // TODO decimal hexadecimal
+        // TODO decimal base64
         (_, _) => {
             io::stdout().write(&encoded_input)?;
         }
