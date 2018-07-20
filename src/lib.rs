@@ -2,7 +2,7 @@ extern crate base64;
 extern crate byteorder;
 extern crate hex;
 pub mod error;
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use error::{exit, CodyError};
 use std::io::Cursor;
 
@@ -194,16 +194,104 @@ fn test_base64_hexadecimal() {
     assert!(base64_hexadecimal("nope-nope".as_bytes().to_vec()).is_err());
 }
 
-pub fn decimal_hexadecimal(encoded_input: Vec<u8>) -> Result<i64, CodyError> {
+pub fn decimal_binary(encoded_input: Vec<u8>) -> Result<i64, CodyError> {
     let in_string = trim(encoded_input)?;
     Ok(in_string.parse()?)
 }
 
 #[test]
-fn test_decimal_hexadecimal() {
-    assert!(decimal_hexadecimal("".as_bytes().to_vec()).is_err());
-    assert_eq!(decimal_hexadecimal("10".as_bytes().to_vec()).unwrap(), 10);
-    assert_eq!(decimal_hexadecimal("256".as_bytes().to_vec()).unwrap(), 256);
-    assert_eq!(decimal_hexadecimal("-42".as_bytes().to_vec()).unwrap(), -42);
-    assert!(decimal_hexadecimal("nope".as_bytes().to_vec()).is_err());
+fn test_decimal_binary() {
+    assert!(decimal_binary("".as_bytes().to_vec()).is_err());
+    assert_eq!(decimal_binary("10".as_bytes().to_vec()).unwrap(), 10);
+    assert_eq!(decimal_binary("256".as_bytes().to_vec()).unwrap(), 256);
+    assert_eq!(decimal_binary("-42".as_bytes().to_vec()).unwrap(), -42);
+    assert!(decimal_binary("nope".as_bytes().to_vec()).is_err());
+}
+
+fn trim_zero_bytes(bytes: &mut Vec<u8>) {
+    // strip leading zero bytes
+    while bytes.len() > 0 && bytes[0] == 0 {
+        bytes.remove(0);
+    }
+}
+
+pub fn decimal_base64(encoded_input: Vec<u8>) -> Result<String, CodyError> {
+    let in_string = trim(encoded_input)?;
+    let mut bytes = vec![];
+    let result: Result<u8, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_u8(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<u16, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_u16::<BigEndian>(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<u32, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_u32::<BigEndian>(result?)?;
+        trim_zero_bytes(&mut bytes);
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<u64, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_u64::<BigEndian>(result?)?;
+        trim_zero_bytes(&mut bytes);
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<i8, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_i8(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<i16, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_i16::<BigEndian>(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<i32, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_i32::<BigEndian>(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    let result: Result<i64, _> = in_string.parse();
+    if result.is_ok() {
+        bytes.write_i64::<BigEndian>(result?)?;
+        return Ok(base64::encode(&bytes));
+    }
+    Err(CodyError {
+        message: "Decimal number invalid (or too large for 64-bit)".into(),
+    })
+}
+
+#[test]
+fn test_decimal_base64() {
+    assert!(decimal_base64(b"".to_vec()).is_err());
+    assert_eq!(decimal_base64(b"10".to_vec()).unwrap(), "Cg==".to_string());
+    assert_eq!(decimal_base64(b"255".to_vec()).unwrap(), "/w==".to_string());
+    assert_eq!(decimal_base64(b"256".to_vec()).unwrap(), "AQA=".to_string());
+    assert_eq!(
+        decimal_base64(b"65535".to_vec()).unwrap(),
+        "//8=".to_string()
+    );
+    assert_eq!(
+        decimal_base64(b"65536".to_vec()).unwrap(),
+        "AQAA".to_string()
+    );
+    assert_eq!(
+        decimal_base64(b"131072".to_vec()).unwrap(),
+        "AgAA".to_string()
+    );
+    // http://www.convertforfree.com/twos-complement-calculator/
+    assert_eq!(decimal_base64(b"-8".to_vec()).unwrap(), "+A==".to_string());
+    assert_eq!(
+        decimal_base64(b"-256".to_vec()).unwrap(),
+        "/wA=".to_string()
+    );
+    assert_eq!(
+        decimal_base64(b"-131072".to_vec()).unwrap(),
+        "//4AAA==".to_string()
+    );
+    assert!(decimal_base64(b"nope".to_vec()).is_err());
 }

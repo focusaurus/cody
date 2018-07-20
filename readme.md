@@ -37,4 +37,6 @@ B/8=
 * hexadecimal to decimal
 * base64 to binary
 * base64 to hexadecimal
+* decimal to binary
 * decimal to hexadecimal
+* decimal to base64

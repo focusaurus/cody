@@ -41,11 +41,15 @@ fn main() -> Result<(), CodyError> {
         ("base64", "hexadecimal") => {
             println!("{}", cody::base64_hexadecimal(encoded_input)?);
         }
-        ("decimal", "hexadecimal") => {
-            println!("{:x}", cody::decimal_hexadecimal(encoded_input)?);
+        ("decimal", "binary") => {
+            println!("{}", cody::decimal_binary(encoded_input)?);
         }
-        // TODO decimal hexadecimal
-        // TODO decimal base64
+        ("decimal", "hexadecimal") => {
+            println!("{:x}", cody::decimal_binary(encoded_input)?);
+        }
+        ("decimal", "base64") => {
+            println!("{}", cody::decimal_base64(encoded_input)?);
+        }
         (_, _) => {
             io::stdout().write(&encoded_input)?;
         }
