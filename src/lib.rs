@@ -19,7 +19,7 @@ fn test_trim() {
     assert_eq!(trim(" a b c\td\t".into()).unwrap(), "a b c\td");
 }
 
-pub fn binary_hexadecimal(input: &Vec<u8>) -> String {
+pub fn binary_hexadecimal(input: &[u8]) -> String {
     hex::encode(input)
 }
 
@@ -36,7 +36,7 @@ fn test_binary_hexadecimal() {
     );
 }
 
-pub fn binary_base64(input: &Vec<u8>) -> String {
+pub fn binary_base64(input: &[u8]) -> String {
     base64::encode(input)
 }
 
@@ -210,7 +210,7 @@ fn test_decimal_binary() {
 
 fn trim_zero_bytes(bytes: &mut Vec<u8>) {
     // strip leading zero bytes
-    while bytes.len() > 0 && bytes[0] == 0 {
+    while !bytes.is_empty() && bytes[0] == 0 {
         bytes.remove(0);
     }
 }

@@ -14,11 +14,4 @@ IFS="$(printf "\n\t")"
 # ---- End unofficial bash strict mode boilerplate
 
 cd "$(dirname "$0")/.."
-exec docker run --rm --interactive --tty \
-  --volume "${PWD}:/opt" --workdir /opt \
-  --env USER=root \
-  --env RUSTUP_TOOLCHAIN=nightly \
-  --env PATH=/usr/local/cargo/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/target/debug \
-  "$(basename "${PWD}")" "${1-/bin/bash}"
-  # --env PATH=/opt/.cargo/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/target/debug \
-  # --env CARGO_HOME=/opt/.cargo \
+docker build -t "$(basename "${PWD}")" .
