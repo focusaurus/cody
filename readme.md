@@ -40,3 +40,12 @@ B/8=
 * decimal to binary
 * decimal to hexadecimal
 * decimal to base64
+
+## Command line format abbreviations
+
+If you're into that whole brevity thing:
+
+* hex
+* dec
+* bin
+* 64
