@@ -6,6 +6,25 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use error::{exit, CodyError};
 use std::io::Cursor;
 
+pub fn normalize(format: String) -> String {
+    match format.as_str() {
+        "64" => "base64".to_string(),
+        "bin" => "binary".to_string(),
+        "dec" => "decimal".to_string(),
+        "hex" => "hexadecimal".to_string(),
+        _ => format.into(),
+    }
+}
+
+#[test]
+fn test_normalize() {
+    assert_eq!(normalize("hex".to_string()), "hexadecimal".to_string());
+    assert_eq!(normalize("dec".to_string()), "decimal".to_string());
+    assert_eq!(normalize("bin".to_string()), "binary".to_string());
+    assert_eq!(normalize("64".to_string()), "base64".to_string());
+    assert_eq!(normalize("base64".to_string()), "base64".to_string());
+}
+
 fn trim(encoded_input: Vec<u8>) -> Result<String, std::string::FromUtf8Error> {
     // Strip leading and trailing ASCII whitespace
     let in_string = String::from_utf8(encoded_input)?;

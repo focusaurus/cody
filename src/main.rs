@@ -6,9 +6,9 @@ use std::io::{self, Read, Write};
 fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
     let in_format = args().nth(1).unwrap_or_else(|| "binary".into());
-    let in_format = in_format.as_str();
+    let in_format = cody::normalize(in_format);
     let out_format = args().nth(2).unwrap_or_else(|| "binary".into());
-    let out_format = out_format.as_str();
+    let out_format = cody::normalize(out_format);
     let mut encoded_input = vec![];
 
     stdin.read_to_end(&mut encoded_input)?;
@@ -16,7 +16,7 @@ fn main() -> Result<(), CodyError> {
         return cody::error::exit("standard input was empty");
     }
 
-    match (in_format, out_format) {
+    match (in_format.as_str(), out_format.as_str()) {
         ("binary", "hexadecimal") => {
             println!("{}", cody::binary_hexadecimal(&encoded_input));
         }
