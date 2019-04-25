@@ -164,9 +164,9 @@ fn test_hexadecimal_decimal() {
     assert_eq!(hexadecimal_decimal(b"0007".to_vec()).unwrap(), 7);
     assert_eq!(hexadecimal_decimal(b"00000001".to_vec()).unwrap(), 1);
     assert_eq!(hexadecimal_decimal(b"0100".to_vec()).unwrap(), 256);
-    assert!(hexadecimal_decimal(b"0".to_vec()).is_err() "Must have even number of hex chars");
-    assert!(hexadecimal_decimal(b"000".to_vec()).is_err() "Must have even number of hex chars");
-    assert!(hexadecimal_decimal(b"00000".to_vec()).is_err() "Must have even number of hex chars");
+    assert!(hexadecimal_decimal(b"0".to_vec()).is_err(), "Must have even number of hex chars");
+    assert!(hexadecimal_decimal(b"000".to_vec()).is_err(), "Must have even number of hex chars");
+    assert!(hexadecimal_decimal(b"00000".to_vec()).is_err(), "Must have even number of hex chars");
     assert!(
         hexadecimal_decimal(b"1122334455667788A".to_vec()).is_err(),
         "Max 16 hex chars can be parsed"
