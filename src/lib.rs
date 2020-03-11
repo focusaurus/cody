@@ -12,7 +12,7 @@ pub fn normalize(format: String) -> String {
         "bin" => "binary".to_string(),
         "dec" => "decimal".to_string(),
         "hex" => "hexadecimal".to_string(),
-        _ => format.into(),
+        _ => format,
     }
 }
 
