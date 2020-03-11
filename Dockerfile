@@ -11,8 +11,5 @@ RUN set -eux; \
     chmod +x rustup-init;
 RUN ./rustup-init -y --no-modify-path --default-toolchain stable-2020-02-27
 RUN set -eux; \
-    rm rustup-init; \
-    mkdir "${CARGO_HOME}/registry"; \
-    chgrp 1000 "${CARGO_HOME}/registry"; \
-    chmod g+rwx "${CARGO_HOME}/registry"
-
+    rm rustup-init;
+USER 1000:1000
