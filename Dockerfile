@@ -9,8 +9,10 @@ RUN set -eux; \
     url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
     wget --quiet "$url"; \
     chmod +x rustup-init;
+RUN ./rustup-init -y --no-modify-path --default-toolchain stable-2020-02-27
 RUN set -eux; \
-    ./rustup-init -y --no-modify-path --default-toolchain nightly-2018-07-22; \
     rm rustup-init; \
-    rustup component add clippy-preview; \
-    ln -nsf /opt/target/registry /usr/local/cargo/registry;
+    mkdir "${CARGO_HOME}/registry"; \
+    chgrp 1000 "${CARGO_HOME}/registry"; \
+    chmod g+rwx "${CARGO_HOME}/registry"
+

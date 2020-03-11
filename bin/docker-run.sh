@@ -15,5 +15,9 @@ IFS="$(printf "\n\t")"
 
 cd "$(dirname "$0")/.."
 exec docker run --rm --interactive --tty \
-  --volume "${PWD}:/opt" \
+  --attach stdin --attach stdout --attach stderr \
+  --user "$(id -u):1000" \
+  --volume "${PWD}:/host" \
+  --volume "${HOME}/.cargo/registry:/usr/local/cargo/registry" \
+  --workdir /host \
   "$(basename "${PWD}")" "${1-/bin/bash}"
