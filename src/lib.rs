@@ -149,7 +149,8 @@ pub fn hexadecimal_decimal(encoded_input: Vec<u8>) -> Result<u64, CodyError> {
     let in_string = trim(encoded_input)?;
     let decoded_input = hex::decode(in_string.as_bytes())?;
     if decoded_input.len() > 8 {
-        return exit("Can only decode a maximum of 16 hexadecimal characters to decimal").map(|_| 0);
+        return exit("Can only decode a maximum of 16 hexadecimal characters to decimal")
+            .map(|_| 0);
     }
     binary_decimal(decoded_input)
 }
