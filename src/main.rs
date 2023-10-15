@@ -7,6 +7,19 @@ fn main() -> Result<(), CodyError> {
     let mut stdin = io::stdin();
     let in_format = args().nth(1).unwrap_or_else(|| "binary".into());
     let in_format = cody::normalize(in_format);
+    if in_format.as_str() == "--help" || in_format.as_str() == "-h" {
+        return cody::error::exit(
+            "Usage: cody in-format out-format
+data to transcode is read from standard input
+encoded data is written to standard output
+supported encodings are:
+binary
+hexadecimal
+decimal
+base64
+",
+        );
+    }
     let out_format = args().nth(2).unwrap_or_else(|| "binary".into());
     let out_format = cody::normalize(out_format);
     let mut encoded_input = vec![];
